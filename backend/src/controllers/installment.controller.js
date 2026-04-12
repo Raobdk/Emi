@@ -52,10 +52,21 @@ const generatePaymentSchedule = async (plan) => {
   const payments = [];
   const startDate = new Date(plan.startDate);
   let count = await Payment.countDocuments();
+  let initialPaidAmount = 0;
 
   for (let i = 1; i <= plan.durationMonths; i++) {
     const dueDate = new Date(startDate);
     dueDate.setMonth(dueDate.getMonth() + i);
+
+    let status = 'pending';
+    let paidDate = undefined;
+
+    // Logic for old entries: Mark as paid if within paidMonths
+    if (plan.paidMonths && i <= plan.paidMonths) {
+      status = 'paid';
+      paidDate = dueDate; // Assuming it was paid on its due date
+      initialPaidAmount += plan.monthlyEmi;
+    }
 
     payments.push({
       paymentId: `PAY${String(++count).padStart(8, '0')}`,
@@ -64,11 +75,20 @@ const generatePaymentSchedule = async (plan) => {
       monthNumber: i,
       dueDate,
       amount: plan.monthlyEmi,
-      status: 'pending'
+      status,
+      paidDate
     });
   }
 
   await Payment.insertMany(payments);
+
+  // If old data was entered, update the plan with the pre-paid amounts
+  if (initialPaidAmount > 0) {
+    plan.totalPaid = initialPaidAmount;
+    plan.totalRemaining = plan.totalAmount - initialPaidAmount;
+    if (plan.totalRemaining <= 0) plan.status = 'completed';
+    await plan.save();
+  }
 };
 
 // @desc    Get all installment plans

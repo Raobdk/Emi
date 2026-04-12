@@ -33,7 +33,7 @@ const PlanModal = ({ onClose, onSave, prefillCustomerId }) => {
   const [form, setForm] = useState({
     customerId: prefillCustomerId || '',
     productName: '', productDescription: '',
-    basePrice: '', advancePayment: '', durationMonths: 12,
+    basePrice: '', advancePayment: '', durationMonths: 12, paidMonths: 0,
     startDate: new Date().toISOString().split('T')[0], notes: ''
   });
   const [calc, setCalc] = useState(null);
@@ -78,7 +78,8 @@ const PlanModal = ({ onClose, onSave, prefillCustomerId }) => {
       ...form,
       basePrice: Number(form.basePrice),
       advancePayment: Number(form.advancePayment || 0),
-      durationMonths: Number(form.durationMonths)
+      durationMonths: Number(form.durationMonths),
+      paidMonths: Number(form.paidMonths || 0)
     });
   };
 
@@ -122,6 +123,11 @@ const PlanModal = ({ onClose, onSave, prefillCustomerId }) => {
               <div className="form-group">
                 <label className="form-label">Start Date</label>
                 <input name="startDate" value={form.startDate} onChange={handleChange} type="date" className="form-control" />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Old Data: Already Paid Months</label>
+                <input name="paidMonths" value={form.paidMonths} onChange={handleChange} type="number" className="form-control" placeholder="0" min="0" max={Math.max(0, form.durationMonths)} />
+                <span style={{fontSize: 10, color: 'var(--text-muted)'}}>Past installments will be auto-marked 'Paid'</span>
               </div>
               <div className="form-group" style={{ gridColumn: '1/-1' }}>
                 <label className="form-label">Notes (optional)</label>

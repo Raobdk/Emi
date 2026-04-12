@@ -112,23 +112,6 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/ai', aiRoutes);
 
-// Temporary admin seed route (for recovery)
-app.get('/api/seed-admin', async (req, res) => {
-  const User = require('./models/Users');
-  try {
-    let admin = await User.findOne({ email: 'admin@emisystem.com' });
-    if (!admin) {
-      admin = new User({ email: 'admin@emisystem.com', name: 'Super Admin', role: 'admin' });
-    }
-    admin.password = 'admin123';
-    admin.isActive = true;
-    await admin.save();
-    res.json({ success: true, message: 'Admin seeded successfully: admin@emisystem.com / admin123' });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
 // 404
 app.use('*', (req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });
@@ -144,7 +127,7 @@ const connectDB = async () => {
     logger.info("MongoDB Connected ✅");
 
     // Auto-seed admin user if none exists
-    const User = require('./models/Users');
+    const User = require('d:/Emi/backend/src/models/users');
     const count = await User.countDocuments();
     if (count === 0) {
       await User.create({
