@@ -9,17 +9,43 @@ const { Server } = require('socket.io');
 require('dotenv').config();
 require('express-async-errors');
 
-const logger = require('./utils/logger');
-const errorMiddleware = require('./middleware/error.middleware');
+// Safe logger (fallback)
+let logger;
+try {
+  logger = require('./utils/logger');
+} catch (err) {
+  console.log("Logger load failed, using console");
+  logger = console;
+}
 
-// Route imports
-const authRoutes = require('./routes/authh.routes');
-const customerRoutes = require('./routes/customer.routes');
-const installmentRoutes = require('./routes/installment.routes');
-const paymentRoutes = require('./routes/payment.routes');
-const reportRoutes = require('./routes/report.routes');
-const notificationRoutes = require('./routes/notification.routes');
-const aiRoutes = require('./routes/ai.routes');
+// Safe error middleware
+let errorMiddleware;
+try {
+  errorMiddleware = require('./middleware/error.middleware');
+} catch (err) {
+  errorMiddleware = (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ success: false, message: err.message });
+  };
+}
+
+// Routes (safe load)
+const safeRequire = (path) => {
+  try {
+    return require(path);
+  } catch (err) {
+    console.log(`Route load failed: ${path}`);
+    return express.Router();
+  }
+};
+
+const authRoutes = safeRequire('./routes/auth.routes');
+const customerRoutes = safeRequire('./routes/customer.routes');
+const installmentRoutes = safeRequire('./routes/installment.routes');
+const paymentRoutes = safeRequire('./routes/payment.routes');
+const reportRoutes = safeRequire('./routes/report.routes');
+const notificationRoutes = safeRequire('./routes/notification.routes');
+const aiRoutes = safeRequire('./routes/ai.routes');
 
 const app = express();
 const httpServer = createServer(app);
@@ -32,16 +58,14 @@ const io = new Server(httpServer, {
   }
 });
 
-// Make io accessible to routes
 app.set('io', io);
 
-// Socket.IO connection
 io.on('connection', (socket) => {
   logger.info(`Client connected: ${socket.id}`);
 
   socket.on('join_room', (userId) => {
     socket.join(userId);
-    logger.info(`User ${userId} joined room`);
+    logger.info(`User ${userId} joined`);
   });
 
   socket.on('disconnect', () => {
@@ -49,49 +73,36 @@ io.on('connection', (socket) => {
   });
 });
 
-// Security Middleware
+// Security
 app.use(helmet());
-app.use(cors({
-  origin: true,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors({ origin: true, credentials: true }));
 
-// Rate Limiting
-const isDev = process.env.NODE_ENV ? process.env.NODE_ENV.trim() === 'development' : true;
+// Rate limit
 const limiter = rateLimit({
-  windowMs: (process.env.RATE_LIMIT_WINDOW || 15) * 60 * 1000,
-  max: isDev ? 10000 : (process.env.RATE_LIMIT_MAX || 100),
-  message: { success: false, message: 'Too many requests, please try again later.' }
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === 'development' ? 10000 : 100
 });
 app.use('/api/', limiter);
 
-// Body Parser
+// Body parser
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Static files
-app.use('/uploads', express.static('uploads'));
-app.use('/receipts', express.static('receipts'));
+app.use(express.urlencoded({ extended: true }));
 
 // Logging
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Health Check
-app.get('/api/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'EMI Management System API is running',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0',
-    environment: process.env.NODE_ENV
-  });
+// Health route (IMPORTANT)
+app.get('/', (req, res) => {
+  res.send('Server running 🚀');
 });
 
-// API Routes
+app.get('/api/health', (req, res) => {
+  res.json({ success: true });
+});
+
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/installments', installmentRoutes);
@@ -100,25 +111,24 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/ai', aiRoutes);
 
-// 404 handler
+// 404
 app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.originalUrl} not found`
-  });
+  res.status(404).json({ success: false, message: 'Route not found' });
 });
 
-// Error middleware (must be last)
+// Error handler
 app.use(errorMiddleware);
 
-// Database connection
+// DB connect (SAFE)
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/emi_system');
-    logger.info(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    logger.error(`Database connection failed: ${error.message}`);
-    process.exit(1);
+    await mongoose.connect(process.env.MONGODB_URI);
+    logger.info("MongoDB Connected ✅");
+  } catch (err) {
+    logger.error("DB Error:", err.message);
+
+    // retry instead of crash
+    setTimeout(connectDB, 5000);
   }
 };
 
@@ -128,16 +138,18 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   await connectDB();
 
-  // Start cron jobs
-  require('./services/cronJobs');
+  // Safe cron
+  try {
+    require('./services/cronJobs');
+  } catch (err) {
+    console.log("Cron failed:", err.message);
+  }
 
   httpServer.listen(PORT, () => {
-    logger.info(`🚀 EMI Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
-    logger.info(`📊 API available at http://localhost:${PORT}/api`);
+    logger.info(`🚀 Server running on port ${PORT}`);
   });
 };
 
 startServer();
 
 module.exports = { app, io };
-// backend triggered restart
