@@ -267,7 +267,7 @@ const getDashboardStats = async (req, res) => {
           _id: null,
           totalInvested: { $sum: '$basePrice' },
           totalProfit: { $sum: '$profit' },
-          totalPaid: { $sum: '$totalPaid' },
+          totalPaid: { $sum: { $add: ['$totalPaid', { $ifNull: ['$advancePayment', 0] }] } },
           totalRemaining: { $sum: '$totalRemaining' }
         }
       }

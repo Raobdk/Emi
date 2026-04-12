@@ -126,10 +126,10 @@ const Dashboard = () => {
         <StatCard icon="👥" label="Active Customers" value={stats?.totalCustomers?.toLocaleString() || 0} color="var(--accent)" onClick={() => navigate('/customers')} />
         <StatCard icon="📋" label="Active Plans" value={stats?.activePlans?.toLocaleString() || 0} sub={`${stats?.totalPlans} total`} color="#22c55e" onClick={() => navigate('/installments')} />
         <StatCard icon="⚠️" label="Overdue Payments" value={stats?.overduePayments?.toLocaleString() || 0} color="#ef4444" onClick={() => navigate('/payments/overdue')} />
-        <StatCard icon="💰" label="Total Invested" value={`PKR ${((stats?.totalInvested || 0) / 1000).toFixed(0)}k`} color="#f59e0b" />
-        <StatCard icon="💹" label="Total Profit" value={`PKR ${((stats?.totalProfit || 0) / 1000).toFixed(0)}k`} color="#22c55e" />
-        <StatCard icon="📥" label="Collected" value={`PKR ${((stats?.totalPaid || 0) / 1000).toFixed(0)}k`} color="var(--accent)" />
-        <StatCard icon="📤" label="Remaining" value={`PKR ${((stats?.totalRemaining || 0) / 1000).toFixed(0)}k`} color="#8b5cf6" />
+        <StatCard icon="💰" label="Total Invested" value={`PKR ${(stats?.totalInvested || 0).toLocaleString()}`} color="#f59e0b" />
+        <StatCard icon="💹" label="Total Profit" value={`PKR ${(stats?.totalProfit || 0).toLocaleString()}`} color="#22c55e" />
+        <StatCard icon="📥" label="Collected" value={`PKR ${(stats?.totalPaid || 0).toLocaleString()}`} color="var(--accent)" />
+        <StatCard icon="📤" label="Remaining" value={`PKR ${(stats?.totalRemaining || 0).toLocaleString()}`} color="#8b5cf6" />
         <StatCard icon="📅" label="Due Today" value={stats?.todayDue?.toLocaleString() || 0} color="#f59e0b" />
       </div>
 
