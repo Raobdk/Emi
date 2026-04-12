@@ -182,11 +182,11 @@ const InstallmentDetail = () => {
           { label: 'Base Price', value: `PKR ${plan.basePrice?.toLocaleString()}`, color: 'var(--text-primary)' },
           { label: 'Advance Paid', value: `PKR ${plan.advancePayment?.toLocaleString()}`, color: 'var(--success)' },
           { label: 'Interest Rate', value: `${plan.interestRate}%`, color: 'var(--text-muted)' },
-          { label: 'Interest Profit', value: `PKR ${plan.interestAmount?.toLocaleString()}`, color: 'var(--warning)' },
-          { label: 'Total Financed (w/ Interest)', value: `PKR ${plan.totalAmount?.toLocaleString()}`, color: 'var(--warning)' },
+          { label: 'Total Interest', value: `PKR ${plan.interestAmount?.toLocaleString()}`, color: 'var(--warning)' },
+          { label: 'Total Financed', value: `PKR ${plan.totalAmount?.toLocaleString()}`, color: 'var(--warning)' },
           { label: 'Monthly EMI', value: `PKR ${plan.monthlyEmi?.toLocaleString()}`, color: 'var(--accent)' },
           { label: 'EMIs Paid', value: `PKR ${plan.totalPaid?.toLocaleString()}`, color: 'var(--success)' },
-          { label: 'Remaining EMI Bal', value: `PKR ${plan.totalRemaining?.toLocaleString()}`, color: 'var(--danger)' },
+          { label: 'Remaining Bal', value: `PKR ${plan.totalRemaining?.toLocaleString()}`, color: 'var(--danger)' },
         ].map(({ label, value, color }) => (
           <div key={label} className="stat-card">
             <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 6 }}>{label}</div>
