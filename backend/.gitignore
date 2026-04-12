@@ -1,0 +1,11 @@
+node_modules/
+logs/
+*.log
+.env
+uploads/
+receipts/
+dist/
+build/
+.DS_Store
+Thumbs.db
+*.tsbuildinfo

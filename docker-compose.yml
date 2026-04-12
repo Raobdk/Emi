@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # ─── MongoDB ────────────────────────────────────────────
+  mongodb:
+    image: mongo:7.0
+    container_name: emi_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: emi_password_2024
+      MONGO_INITDB_DATABASE: emi_system
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - emi_network
+
+  # ─── Backend API ─────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: emi_backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGODB_URI: mongodb://admin:emi_password_2024@mongodb:27017/emi_system?authSource=admin
+      JWT_SECRET: change_this_secret_in_production_!@#$
+      JWT_REFRESH_SECRET: change_this_refresh_secret_!@#$
+      JWT_EXPIRE: 30d
+      JWT_REFRESH_EXPIRE: 90d
+      CLIENT_URL: http://localhost:3000
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/receipts:/app/receipts
+      - ./backend/logs:/app/logs
+    depends_on:
+      - mongodb
+    networks:
+      - emi_network
+
+  # ─── Frontend ─────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./web-frontend
+      dockerfile: Dockerfile
+    container_name: emi_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    environment:
+      REACT_APP_API_URL: http://localhost:5000/api
+    depends_on:
+      - backend
+    networks:
+      - emi_network
+
+volumes:
+  mongo_data:
+
+networks:
+  emi_network:
+    driver: bridge
