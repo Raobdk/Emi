@@ -6,6 +6,7 @@
 // Interest rate table based on duration
 const INTEREST_TABLE = [
   { minMonths: 12, rate: 40 },
+  { minMonths: 10, rate: 35 },
   { minMonths: 9,  rate: 30 },
   { minMonths: 6,  rate: 20 },
   { minMonths: 3,  rate: 10 },

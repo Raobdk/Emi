@@ -102,6 +102,8 @@ installmentPlanSchema.pre('save', function (next) {
   // Calculate interest rate based on duration
   if (this.durationMonths >= 12) {
     this.interestRate = 40;
+  } else if (this.durationMonths >= 10) {
+    this.interestRate = 35;
   } else if (this.durationMonths >= 9) {
     this.interestRate = 30;
   } else if (this.durationMonths >= 6) {
@@ -133,8 +135,15 @@ installmentPlanSchema.pre('save', function (next) {
 // Generate plan ID before saving new doc
 installmentPlanSchema.pre('save', async function (next) {
   if (!this.planId) {
-    const count = await mongoose.model('InstallmentPlan').countDocuments();
-    this.planId = `PLAN${String(count + 1).padStart(6, '0')}`;
+    const lastPlan = await mongoose.model('InstallmentPlan').findOne({}, {}, { sort: { 'planId': -1 } });
+    let nextIdNumber = 1;
+    if (lastPlan && lastPlan.planId && lastPlan.planId.startsWith('PLAN')) {
+      const lastNum = parseInt(lastPlan.planId.replace('PLAN', ''), 10);
+      if (!isNaN(lastNum)) {
+        nextIdNumber = lastNum + 1;
+      }
+    }
+    this.planId = `PLAN${String(nextIdNumber).padStart(6, '0')}`;
   }
   next();
 });

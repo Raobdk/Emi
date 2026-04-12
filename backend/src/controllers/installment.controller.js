@@ -212,6 +212,7 @@ const calculateEmi = async (req, res) => {
   let interestRate;
 
   if (durationMonths >= 12) interestRate = 40;
+  else if (durationMonths >= 10) interestRate = 35;
   else if (durationMonths >= 9) interestRate = 30;
   else if (durationMonths >= 6) interestRate = 20;
   else if (durationMonths >= 3) interestRate = 10;
