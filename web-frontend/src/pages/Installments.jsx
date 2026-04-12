@@ -218,6 +218,18 @@ const Installments = () => {
     defaulted: 'badge-danger', cancelled: 'badge-default'
   }[s] || 'badge-default');
 
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to permanently delete this plan? This action cannot be undone.")) {
+      try {
+        await installmentsAPI.delete(id);
+        toast.success("Plan deleted permanently");
+        fetchPlans();
+      } catch (err) {
+        toast.error(err.response?.data?.message || "Cannot delete this plan");
+      }
+    }
+  };
+
   return (
     <div className="animate-fadeIn">
       <div className="page-header">
@@ -286,9 +298,16 @@ const Installments = () => {
                         </td>
                         <td><span className={`badge ${statusBadge(p.status)}`}>{p.status}</span></td>
                         <td>
-                          <button className="btn btn-sm btn-secondary" onClick={() => navigate(`/installments/${p._id}`)}>
-                            👁️ Details
-                          </button>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button className="btn btn-sm btn-secondary" onClick={() => navigate(`/installments/${p._id}`)}>
+                              👁️ Details
+                            </button>
+                            {(p.status === 'cancelled' || p.paidMonths === 0) && (
+                              <button className="btn btn-sm btn-secondary" onClick={() => handleDelete(p._id)} style={{ color: 'var(--danger)', padding: '6px 10px' }} title="Delete Plan">
+                                🗑️
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
