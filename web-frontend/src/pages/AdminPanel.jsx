@@ -118,8 +118,7 @@ const AdminPanel = () => {
         </button>
       </div>
 
-      {/* Stats */}
-      <div className="stats-grid mb-6" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+      <div className="stats-grid mb-6 admin-stats-grid">
         {[
           { label: 'Total Users', value: stats.total, icon: '👥', color: 'var(--accent)' },
           { label: 'Active', value: stats.active, icon: '✅', color: 'var(--success)' },
@@ -200,10 +199,9 @@ const AdminPanel = () => {
         )}
       </div>
 
-      {/* System Health */}
       <div className="card" style={{ marginTop: 24 }}>
         <h3 className="card-title mb-6">⚙️ System Health</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        <div className="system-health-grid">
           {[
             { label: 'API Server', status: 'Operational', icon: '🖥️', color: 'var(--success)' },
             { label: 'Database', status: 'Connected', icon: '🗄️', color: 'var(--success)' },

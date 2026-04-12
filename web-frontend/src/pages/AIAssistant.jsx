@@ -78,9 +78,9 @@ const AIAssistant = () => {
   };
 
   return (
-    <div className="animate-fadeIn" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, height: 'calc(100vh - 130px)' }}>
+    <div className="animate-fadeIn ai-layout">
       {/* Chat Area */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0, height: '100%' }}>
         <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 0 }}>
           {/* Chat Header */}
           <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 14 }}>

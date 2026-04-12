@@ -597,6 +597,11 @@ tbody tr:last-child { border-bottom: none; }
   .header-greeting { font-size: 16px; }
 }
 
+/* Layout Helper Classes */
+.ai-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; height: calc(100vh - 130px); }
+.admin-stats-grid { grid-template-columns: repeat(4, 1fr); }
+.system-health-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
 @media (max-width: 1024px) {
   .table-container { 
     overflow-x: auto; 
@@ -606,4 +611,9 @@ tbody tr:last-child { border-bottom: none; }
   }
   table { min-width: 800px; }
   .modal-body > div { grid-template-columns: 1fr !important; }
+  
+  /* Collapse grids to 1 column on tablet and mobile */
+  .ai-layout { grid-template-columns: 1fr; height: auto; }
+  .admin-stats-grid { grid-template-columns: 1fr; }
+  .system-health-grid { grid-template-columns: 1fr; }
 }
