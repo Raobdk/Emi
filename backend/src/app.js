@@ -124,6 +124,21 @@ const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
     logger.info("MongoDB Connected ✅");
+
+    // Auto-seed admin user if none exists
+    const User = require('./models/Users');
+    const count = await User.countDocuments();
+    if (count === 0) {
+      await User.create({
+        name: 'Super Admin',
+        email: 'admin@emisystem.com',
+        password: 'admin123',
+        role: 'admin',
+        phone: '0000000000'
+      });
+      logger.info('✅ Auto-seeded default admin (admin@emisystem.com / admin123)');
+    }
+
   } catch (err) {
     logger.error("DB Error:", err.message);
 
