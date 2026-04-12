@@ -34,7 +34,8 @@ const safeRequire = (path) => {
   try {
     return require(path);
   } catch (err) {
-    console.log(`Route load failed: ${path}`);
+    console.error(`❌ Route load failed: ${path}`);
+    console.error(err.stack);
     return express.Router();
   }
 };
