@@ -51,7 +51,16 @@ const createInstallmentPlan = async (req, res) => {
 const generatePaymentSchedule = async (plan) => {
   const payments = [];
   const startDate = new Date(plan.startDate);
-  let count = await Payment.countDocuments();
+  
+  const lastPayment = await Payment.findOne({}, {}, { sort: { 'paymentId': -1 } });
+  let nextIdNumber = 1;
+  if (lastPayment && lastPayment.paymentId && lastPayment.paymentId.startsWith('PAY')) {
+    const lastNum = parseInt(lastPayment.paymentId.replace('PAY', ''), 10);
+    if (!isNaN(lastNum)) {
+      nextIdNumber = lastNum + 1;
+    }
+  }
+
   let initialPaidAmount = 0;
 
   for (let i = 1; i <= plan.durationMonths; i++) {
@@ -69,7 +78,7 @@ const generatePaymentSchedule = async (plan) => {
     }
 
     payments.push({
-      paymentId: `PAY${String(++count).padStart(8, '0')}`,
+      paymentId: `PAY${String(nextIdNumber++).padStart(8, '0')}`,
       installmentPlanId: plan._id,
       customerId: plan.customerId,
       monthNumber: i,

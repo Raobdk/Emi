@@ -61,8 +61,15 @@ const paymentSchema = new mongoose.Schema({
 // Generate payment ID
 paymentSchema.pre('save', async function (next) {
   if (!this.paymentId) {
-    const count = await mongoose.model('Payment').countDocuments();
-    this.paymentId = `PAY${String(count + 1).padStart(8, '0')}`;
+    const lastPayment = await mongoose.model('Payment').findOne({}, {}, { sort: { 'paymentId': -1 } });
+    let nextIdNumber = 1;
+    if (lastPayment && lastPayment.paymentId && lastPayment.paymentId.startsWith('PAY')) {
+      const lastNum = parseInt(lastPayment.paymentId.replace('PAY', ''), 10);
+      if (!isNaN(lastNum)) {
+        nextIdNumber = lastNum + 1;
+      }
+    }
+    this.paymentId = `PAY${String(nextIdNumber).padStart(8, '0')}`;
   }
 
   // Auto mark overdue
