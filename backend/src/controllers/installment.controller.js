@@ -156,13 +156,6 @@ const deleteInstallmentPlan = async (req, res) => {
     return res.status(404).json({ success: false, message: 'Plan not found' });
   }
 
-  if (plan.paidMonths > 0) {
-    return res.status(400).json({
-      success: false,
-      message: 'Cannot delete plan with payments already recorded'
-    });
-  }
-
   await Payment.deleteMany({ installmentPlanId: plan._id });
   await plan.deleteOne();
 

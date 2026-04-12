@@ -181,10 +181,10 @@ const InstallmentDetail = () => {
         {[
           { label: 'Base Price', value: `PKR ${plan.basePrice?.toLocaleString()}`, color: 'var(--text-primary)' },
           { label: 'Advance Paid', value: `PKR ${plan.advancePayment?.toLocaleString()}`, color: 'var(--success)' },
-          { label: 'Interest Rate', value: `${plan.interestRate}%`, color: 'var(--warning)' },
+          { label: 'Total Financed (EMI)', value: `PKR ${plan.totalAmount?.toLocaleString()}`, color: 'var(--warning)' },
           { label: 'Monthly EMI', value: `PKR ${plan.monthlyEmi?.toLocaleString()}`, color: 'var(--accent)' },
-          { label: 'Total Paid', value: `PKR ${plan.totalPaid?.toLocaleString()}`, color: 'var(--success)' },
-          { label: 'Remaining', value: `PKR ${plan.totalRemaining?.toLocaleString()}`, color: 'var(--danger)' },
+          { label: 'EMIs Paid', value: `PKR ${plan.totalPaid?.toLocaleString()}`, color: 'var(--success)' },
+          { label: 'Remaining EMI Bal', value: `PKR ${plan.totalRemaining?.toLocaleString()}`, color: 'var(--danger)' },
         ].map(({ label, value, color }) => (
           <div key={label} className="stat-card">
             <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 6 }}>{label}</div>
@@ -204,7 +204,7 @@ const InstallmentDetail = () => {
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-            PKR {plan.totalPaid?.toLocaleString()} paid
+            PKR {plan.totalPaid?.toLocaleString()} recovered / PKR {plan.totalAmount?.toLocaleString()} total
           </span>
           <span style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 700 }}>{progressPct.toFixed(0)}% complete</span>
         </div>

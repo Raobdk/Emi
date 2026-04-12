@@ -302,11 +302,9 @@ const Installments = () => {
                             <button className="btn btn-sm btn-secondary" onClick={() => navigate(`/installments/${p._id}`)}>
                               👁️ Details
                             </button>
-                            {(p.status === 'cancelled' || p.paidMonths === 0) && (
-                              <button className="btn btn-sm btn-secondary" onClick={() => handleDelete(p._id)} style={{ color: 'var(--danger)', padding: '6px 10px' }} title="Delete Plan">
-                                🗑️
-                              </button>
-                            )}
+                            <button className="btn btn-sm btn-secondary" onClick={() => handleDelete(p._id)} style={{ color: 'var(--danger)', padding: '6px 10px' }} title="Delete Plan">
+                              🗑️
+                            </button>
                           </div>
                         </td>
                       </tr>
