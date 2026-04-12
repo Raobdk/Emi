@@ -112,6 +112,23 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/ai', aiRoutes);
 
+// Temporary admin seed route (for recovery)
+app.get('/api/seed-admin', async (req, res) => {
+  const User = require('./models/Users');
+  try {
+    let admin = await User.findOne({ email: 'admin@emisystem.com' });
+    if (!admin) {
+      admin = new User({ email: 'admin@emisystem.com', name: 'Super Admin', role: 'admin' });
+    }
+    admin.password = 'admin123';
+    admin.isActive = true;
+    await admin.save();
+    res.json({ success: true, message: 'Admin seeded successfully: admin@emisystem.com / admin123' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // 404
 app.use('*', (req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });
