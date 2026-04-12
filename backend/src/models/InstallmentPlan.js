@@ -113,11 +113,11 @@ installmentPlanSchema.pre('save', function (next) {
   }
 
   // Calculate amounts
-  this.remainingAmount = this.basePrice - this.advancePayment;
-  this.interestAmount = (this.remainingAmount * this.interestRate) / 100;
-  this.totalAmount = this.remainingAmount + this.interestAmount;
+  this.remainingAmount = Math.round(this.basePrice - this.advancePayment);
+  this.interestAmount = Math.round((this.remainingAmount * this.interestRate) / 100);
+  this.totalAmount = Math.round(this.remainingAmount + this.interestAmount);
   this.monthlyEmi = Math.ceil(this.totalAmount / this.durationMonths);
-  this.totalRemaining = this.totalAmount - this.totalPaid;
+  this.totalRemaining = Math.max(0, Math.round(this.totalAmount - this.totalPaid));
   this.profit = this.interestAmount;
 
   // Calculate end date

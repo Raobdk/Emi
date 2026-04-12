@@ -39,6 +39,7 @@ const PlanModal = ({ onClose, onSave, prefillCustomerId }) => {
   const [calc, setCalc] = useState(null);
   const [customers, setCustomers] = useState([]);
   const [calculatingEMI, setCalculatingEMI] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const loadCustomers = async () => {
@@ -74,13 +75,19 @@ const PlanModal = ({ onClose, onSave, prefillCustomerId }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await onSave({
-      ...form,
-      basePrice: Number(form.basePrice),
-      advancePayment: Number(form.advancePayment || 0),
-      durationMonths: Number(form.durationMonths),
-      paidMonths: Number(form.paidMonths || 0)
-    });
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      await onSave({
+        ...form,
+        basePrice: Number(form.basePrice),
+        advancePayment: Number(form.advancePayment || 0),
+        durationMonths: Number(form.durationMonths),
+        paidMonths: Number(form.paidMonths || 0)
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -138,8 +145,10 @@ const PlanModal = ({ onClose, onSave, prefillCustomerId }) => {
             {calculatingEMI && <p style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 8 }}>Calculating EMI...</p>}
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary">✅ Create Plan</button>
+            <button type="button" className="btn btn-secondary" disabled={isSubmitting} onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting || calculatingEMI}>
+              {isSubmitting ? 'Creating...' : '✅ Create Plan'}
+            </button>
           </div>
         </form>
       </div>

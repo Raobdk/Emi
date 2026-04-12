@@ -26,10 +26,8 @@ const recordPayment = async (req, res) => {
   payment.paidDate = paidDate || new Date();
   payment.collectedBy = req.user._id;
 
-  if (amountPaid >= payment.amount) {
+  if (amountPaid > 0) {
     payment.status = 'paid';
-  } else if (amountPaid > 0) {
-    payment.status = 'partial';
   }
 
   await payment.save();
