@@ -69,6 +69,48 @@ const PaymentModal = ({ payment, onClose, onSave }) => {
   );
 };
 
+const EditPlanModal = ({ plan, onClose, onSave }) => {
+  const [form, setForm] = useState({
+    productName: plan.productName || '',
+    notes: plan.notes || ''
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await onSave(plan._id, form);
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <h3 className="modal-title">✏️ Edit Plan Details</h3>
+          <button className="btn btn-sm btn-secondary btn-icon" onClick={onClose}>✕</button>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className="modal-body">
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
+              Note: You can only edit basic details. Financial calculations cannot be altered once a plan is generated to ensure integrity.
+            </p>
+            <div className="form-group">
+              <label className="form-label">Product Name *</label>
+              <input type="text" className="form-control" value={form.productName} onChange={e => setForm({...form, productName: e.target.value})} required />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Notes</label>
+              <textarea className="form-control" rows={3} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Optional note..." />
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn btn-primary">✅ Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 const InstallmentDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -77,6 +119,7 @@ const InstallmentDetail = () => {
   const [summary, setSummary] = useState({});
   const [loading, setLoading] = useState(true);
   const [payModal, setPayModal] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const load = async () => {
     try {
@@ -145,6 +188,17 @@ const InstallmentDetail = () => {
     }
   };
 
+  const handleEditPlan = async (id, data) => {
+    try {
+      await installmentsAPI.update(id, data);
+      toast.success('Plan details updated successfully');
+      setShowEditModal(false);
+      load();
+    } catch (err) {
+      toast.error('Failed to update plan details');
+    }
+  };
+
   if (loading) return <LoadingSpinner />;
   if (!plan) return null;
 
@@ -160,6 +214,12 @@ const InstallmentDetail = () => {
           <button className="btn btn-sm btn-secondary mb-4" onClick={() => navigate('/installments')}>← Back</button>
           <div className="flex items-center gap-3">
             <h1 className="page-title">{plan.productName}</h1>
+            <button 
+              className="btn btn-sm btn-secondary shadow-sm" 
+              onClick={() => setShowEditModal(true)}
+            >
+              ✏️ Edit
+            </button>
             {plan.status === 'active' && (
               <button 
                 className="btn btn-sm btn-danger shadow-sm" 
@@ -279,6 +339,14 @@ const InstallmentDetail = () => {
           payment={payModal}
           onClose={() => setPayModal(null)}
           onSave={recordPayment}
+        />
+      )}
+
+      {showEditModal && (
+        <EditPlanModal
+          plan={plan}
+          onClose={() => setShowEditModal(false)}
+          onSave={handleEditPlan}
         />
       )}
     </div>

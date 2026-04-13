@@ -123,7 +123,7 @@ const PlanModal = ({ onClose, onSave, prefillCustomerId }) => {
                 <label className="form-label">Duration (Months) *</label>
                 <select name="durationMonths" value={form.durationMonths} onChange={handleChange} className="form-control form-select" required>
                   {[1,2,3,4,5,6,7,8,9,10,11,12,18,24,36,48,60].map(m => (
-                    <option key={m} value={m}>{m} month{m > 1 ? 's' : ''} {m >= 12 ? '(40% interest)' : m >= 9 ? '(30%)' : m >= 6 ? '(20%)' : m >= 3 ? '(10%)' : '(5%)'}</option>
+                    <option key={m} value={m}>{m} month{m > 1 ? 's' : ''} {m >= 12 ? '(40% interest)' : m >= 10 ? '(35%)' : m >= 9 ? '(30%)' : m >= 6 ? '(20%)' : m >= 3 ? '(10%)' : '(5%)'}</option>
                   ))}
                 </select>
               </div>
